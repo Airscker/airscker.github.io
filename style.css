@@ -871,7 +871,9 @@ xclip
 }
 
 .testimonial img {
-    max-width: 55px;
+    max-width: 140px;
+    /* max-width: 100px; */
+    /* padding-bottom: 10px; */
 }
 
 .testimonial small {
@@ -885,7 +887,7 @@ xclip
 }
 
 .testimonial h3 {
-    padding: 0 0 10px;
+    padding: 15px 0 13px 10px;
     font-size: 20px;
     font-weight: 600;
     color: #ffffff;
