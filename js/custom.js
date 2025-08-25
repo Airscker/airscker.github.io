@@ -100,6 +100,26 @@
         filter: filterValue
       });
     });
+  });
+
+  // Project Filter
+  $('.filter-btn').on('click', function() {
+    var filterValue = $(this).attr('data-filter');
+    
+    // Update active button
+    $('.filter-btn').removeClass('active');
+    $(this).addClass('active');
+    
+    // Filter projects
+    if (filterValue === '*') {
+      $('.project-card').fadeIn(300);
+    } else {
+      $('.project-card').fadeOut(300);
+      $('.project-card' + filterValue).fadeIn(300);
+    }
+  });
+      });
+    });
     var $grid = $('.gallery-list').isotope({
       itemSelector: '.gallery-grid'
     });

@@ -1,0 +1,36 @@
+{
+  "last_updated": "2025-08-25 13:30:00",
+  "total_projects": 6,
+  "projects": [
+    {
+      "title": "LLM-driven Molecular Structure Elucidation",
+      "description": "Developing novel Large Language Models to predict molecular structures from mass spectrometry data using chain-of-thought reasoning. Implementing multi-stage training architecture (SFT, Reward Modeling, RL) inspired by state-of-the-art LLMs like DeepSeek-R1.",
+      "technologies": "Large Language Models, Reinforcement Learning, Chain of Thought, Molecular Design",
+      "icon": "flaticon-seo"
+    },
+    {
+      "title": "Multi-modal LLM for Materials Informatics",
+      "description": "Fine-tuned and combined YOLOv8 and LLAMA3 model backbonesto extract molecular information from scientific literature and predict electrochemical properties using Graph Neural Networks. Achieved R² coefficient exceeding 99.1% in property prediction.",
+      "technologies": "Multi-modal LLMs, YOLOv8, LLAMA3, Graph Neural Networks, DFT",
+      "icon": "flaticon-development"
+    },
+    {
+      "title": "Variational Transformer for Quantum Systems",
+      "description": "Proposed and developed a novel transformer density operator ansatz to efficiently model steady states of dissipative quantum systems. Validated on dissipative Ising model with high accuracy.",
+      "technologies": "Transformer Architecture, Quantum Computing, Variational Methods",
+      "icon": "flaticon-process"
+    },
+    {
+      "title": "Diffusion Models for X-ray Spectroscopy",
+      "description": "Constructed extensive database of X-ray Absorption Spectra and protein structures. Developing diffusion model-based multi-modal approach to reconstruct protein structures from XAS spectra.",
+      "technologies": "Diffusion Models, Computer Vision, Graph Neural Networks, X-ray Spectroscopy",
+      "icon": "flaticon-discuss-issue"
+    },
+    {
+      "title": "AI-enabled Cardiac MRI Interpretation",
+      "description": "Developed large vision model-based deep learning pipelines for heart disease diagnosis. Achieved over 99% accuracy in cardiac anomaly detection, surpassing human performance benchmarks.",
+      "technologies": "Computer Vision, Deep Learning, Medical Imaging, Large Vision Models",
+      "icon": "flaticon-idea"
+    }
+  ]
+}

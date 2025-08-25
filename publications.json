@@ -1,0 +1,42 @@
+{
+  "last_updated": "2025-08-25 13:15:12",
+  "total_publications": 4,
+  "publications": [
+    {
+      "title": "Screening and diagnosis of cardiovascular disease using artificial intelligence-enabled cardiac magnetic resonance imaging",
+      "authors": "YR Wang, K Yang, Y Wen, P Wang, Y Hu, Y Lai, Y Wang, K Zhao, S Tang, ...",
+      "venue": "Nature Medicine 30 (5), 1471-1480",
+      "year": "2024",
+      "citations": 94,
+      "link": "https://scholar.google.com/citations?view_op=view_citation&hl=en&user=0ZahlvEAAAAJ&citation_for_view=0ZahlvEAAAAJ:u5HHmVD_uO8C",
+      "scholar_link": "https://scholar.google.com/citations?view_op=view_citation&hl=en&user=0ZahlvEAAAAJ&citation_for_view=0ZahlvEAAAAJ:u5HHmVD_uO8C"
+    },
+    {
+      "title": "Variational transformer ansatz for the density operator of steady states in dissipative quantum many-body systems",
+      "authors": "L Wei, Z Jia, Y Wang, D Kaszlikowski, H Ling",
+      "venue": "Physical Review B 112 (6), 064303",
+      "year": "2025",
+      "citations": 1,
+      "link": "https://scholar.google.com/citations?view_op=view_citation&hl=en&user=0ZahlvEAAAAJ&citation_for_view=0ZahlvEAAAAJ:d1gkVwhDpl0C",
+      "scholar_link": "https://scholar.google.com/citations?view_op=view_citation&hl=en&user=0ZahlvEAAAAJ&citation_for_view=0ZahlvEAAAAJ:d1gkVwhDpl0C"
+    },
+    {
+      "title": "Spectra-to-Structure and Structure-to-Spectra Inference Across the Periodic Table",
+      "authors": "Y Wang, P Wang, L Ma, Y Lin, Q Liu, H Ling",
+      "venue": "arXiv preprint arXiv:2506.11908",
+      "year": "2025",
+      "citations": 0,
+      "link": "https://scholar.google.com/citations?view_op=view_citation&hl=en&user=0ZahlvEAAAAJ&citation_for_view=0ZahlvEAAAAJ:2osOgNQ5qMEC",
+      "scholar_link": "https://scholar.google.com/citations?view_op=view_citation&hl=en&user=0ZahlvEAAAAJ&citation_for_view=0ZahlvEAAAAJ:2osOgNQ5qMEC"
+    },
+    {
+      "title": "An X-ray absorption spectrum database for iron-containing proteins",
+      "authors": "Y Wang, P Wang, EM Rengifo, D Yang, K Jia, R Segireddy, L Ma, Y Lin, ...",
+      "venue": "arXiv preprint arXiv:2504.18554",
+      "year": "2025",
+      "citations": 0,
+      "link": "https://scholar.google.com/citations?view_op=view_citation&hl=en&user=0ZahlvEAAAAJ&citation_for_view=0ZahlvEAAAAJ:9yKSN-GCB0IC",
+      "scholar_link": "https://scholar.google.com/citations?view_op=view_citation&hl=en&user=0ZahlvEAAAAJ&citation_for_view=0ZahlvEAAAAJ:9yKSN-GCB0IC"
+    }
+  ]
+}
