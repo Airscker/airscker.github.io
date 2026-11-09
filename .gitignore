@@ -3,4 +3,5 @@ backups
 .vscode
 .idea
 .pytest_cache
+.claude/
 *LAPTOP-8KCEN3NK*
