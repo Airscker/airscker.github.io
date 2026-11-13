@@ -1,0 +1,610 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Bay Area Take-Home Planner</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: grouped inputs left, results right, then a derivation of every number, the official 2026 tables, and a glossary. Mono for figures, sans for labels. */
+:root{
+  --bg:#f6f7f5; --panel:#ffffff; --fg:#1b1f1d; --muted:#5f6a64; --line:#dde2de;
+  --accent:#0f766e; --accent-soft:#d9efeb; --warn:#b45309; --warn-soft:#fdeedc; --bad:#b91c1c; --bad-soft:#fbe3e3; --good:#15803d; --good-soft:#dff3e5;
+  --font-sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#141716; --panel:#1d2220; --fg:#eef1ef; --muted:#9aa59f; --line:#2f3733;
+  --accent:#4fc3b5; --accent-soft:#17352f; --warn:#f0a44d; --warn-soft:#3d2a12; --bad:#f07171; --bad-soft:#3d1a1a; --good:#5fcf80; --good-soft:#173321;
+  color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#141716; --panel:#1d2220; --fg:#eef1ef; --muted:#9aa59f; --line:#2f3733;
+  --accent:#4fc3b5; --accent-soft:#17352f; --warn:#f0a44d; --warn-soft:#3d2a12; --bad:#f07171; --bad-soft:#3d1a1a; --good:#5fcf80; --good-soft:#173321;
+  color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-sans);line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
+.wrap{max-width:1120px;margin:0 auto;display:grid;gap:24px}
+header h1{font-size:1.6rem;font-weight:600;margin:0 0 4px;text-wrap:balance;letter-spacing:-.01em}
+header p{margin:0;color:var(--muted);max-width:70ch}
+.grid{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:800px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;min-width:0}
+.panel h2{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 14px;font-weight:600}
+.panel h3{font-size:1rem;font-weight:600;margin:0 0 6px}
+.panel h4{font-size:.85rem;font-weight:600;margin:16px 0 6px}
+.group{border:1px solid var(--line);border-radius:8px;margin-bottom:10px;background:var(--bg)}
+.group summary{padding:10px 12px;cursor:pointer;font-weight:600;font-size:.88rem;list-style:none;display:flex;justify-content:space-between;align-items:center}
+.group summary::after{content:"+";color:var(--muted);font-family:var(--font-mono)}
+.group[open] summary::after{content:"–"}
+.group .in{padding:4px 12px 12px;display:grid;gap:10px}
+.field{display:grid;gap:3px}
+.field label{font-size:.82rem;font-weight:500}
+.hint{font-size:.74rem;color:var(--muted)}
+.inwrap{display:flex;align-items:center;border:1px solid var(--line);border-radius:6px;background:var(--panel);overflow:hidden}
+.inwrap span{padding:0 10px;color:var(--muted);font-family:var(--font-mono);font-size:.82rem;white-space:nowrap}
+.inwrap input,.inwrap select{flex:1;min-width:0;border:0;background:transparent;color:var(--fg);font:500 .95rem var(--font-mono);padding:7px 10px;font-variant-numeric:tabular-nums}
+.inwrap input:focus,.inwrap select:focus{outline:2px solid var(--accent);outline-offset:-2px}
+.results{display:grid;gap:18px;min-width:0}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.tile{padding:14px;border:1px solid var(--line);border-radius:8px;background:var(--bg);min-width:0}
+.tile .k{font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.tile .v{font:500 1.45rem var(--font-mono);font-variant-numeric:tabular-nums;margin-top:2px;letter-spacing:-.02em}
+.tile .s{font-size:.76rem;color:var(--muted);margin-top:2px}
+.tile.accent{background:var(--accent-soft);border-color:transparent}
+table{width:100%;border-collapse:collapse;font-size:.86rem}
+th,td{padding:6px 8px 6px 0;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+td.n,th.n{text-align:right;font-family:var(--font-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+td.f{font-family:var(--font-mono);font-size:.78rem;color:var(--muted);white-space:nowrap}
+tr.total td{font-weight:600;border-bottom:0;border-top:2px solid var(--line)}
+tr.total td.n{color:var(--accent)}
+tr.dim td{color:var(--muted)}
+.tscroll{overflow-x:auto}
+.bar{display:flex;height:22px;border-radius:5px;overflow:hidden;margin:10px 0 8px}
+.bar div{height:100%;min-width:0}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:.8rem;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.c1{background:var(--accent)}.c2{background:#8b5cf6}.c3{background:#d97706}.c4{background:#64748b}.c5{background:var(--good)}
+.verdict{display:grid;gap:10px}
+.check{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;padding:10px 12px;border-radius:8px;font-size:.88rem}
+.check .pill{font:500 .72rem var(--font-mono);padding:2px 8px;border-radius:999px;white-space:nowrap;margin-top:2px}
+.check.ok{background:var(--good-soft)}.check.ok .pill{background:var(--good);color:#fff}
+.check.warn{background:var(--warn-soft)}.check.warn .pill{background:var(--warn);color:#fff}
+.check.bad{background:var(--bad-soft)}.check.bad .pill{background:var(--bad);color:#fff}
+.check b{font-weight:600}
+.check .d{color:var(--muted);font-size:.8rem}
+svg text{font-family:var(--font-mono);font-size:11px;fill:var(--muted)}
+.note{font-size:.78rem;color:var(--muted);margin:0}
+.step{display:grid;grid-template-columns:34px 1fr;gap:14px;padding:18px 0;border-top:1px solid var(--line)}
+.step:first-of-type{border-top:0;padding-top:4px}
+.step .num{width:28px;height:28px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font:500 .85rem var(--font-mono);display:grid;place-items:center}
+.step .body{min-width:0;display:grid;gap:8px}
+.step p{margin:0;font-size:.88rem;max-width:72ch}
+.eq{font:500 .82rem var(--font-mono);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:7px 10px;overflow-x:auto;white-space:nowrap}
+.eq b{color:var(--accent);font-weight:500}
+.rates{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.rate{padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.rate .k{font-size:.85rem;font-weight:600}
+.rate .v{font:500 1.4rem var(--font-mono);font-variant-numeric:tabular-nums;margin:2px 0}
+.rate .d{font-size:.76rem;color:var(--muted)}
+.rate.hi{border-color:var(--accent)}
+.ref{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px}
+.ref .tscroll{margin-top:4px}
+dl{display:grid;grid-template-columns:max-content 1fr;gap:10px 18px;margin:0;font-size:.86rem}
+@media (max-width:560px){dl{grid-template-columns:1fr;gap:4px 0} dd{margin-bottom:10px}}
+dt{font-weight:600;white-space:nowrap}
+dd{margin:0;color:var(--muted);max-width:72ch}
+dd b{color:var(--fg);font-weight:500}
+a{color:var(--accent)}
+.src{font-size:.78rem;color:var(--muted);line-height:1.7}
+@media (prefers-reduced-motion:no-preference){.bar div{transition:flex .3s ease}}
+</style>
+
+<div class="wrap">
+<header>
+  <h1>Bay Area Take-Home Planner</h1>
+  <p>Annual federal and California tax on every kind of pay, with the official 2026 tables, and what is left for rent, a car and living. Every figure is derived step by step below the results, and the tables used are printed at the bottom with their sources.</p>
+</header>
+
+<div class="grid">
+<section class="panel" aria-label="Inputs">
+  <h2>Inputs</h2>
+
+  <details class="group" open><summary>Filing</summary><div class="in">
+    <div class="field"><label for="status">Filing status</label>
+      <div class="inwrap"><select id="status"><option value="single">Single</option><option value="mfj">Married filing jointly</option><option value="hoh">Head of household</option><option value="mfs">Married filing separately</option></select></div></div>
+    <div class="field"><label for="age">Your age</label>
+      <div class="inwrap"><input id="age" type="number" value="25" min="16" max="100"><span>years</span></div>
+      <div class="hint">Sets the 401(k) catch-up limit (50+, and the larger 60 to 63 limit).</div></div>
+    <div class="field"><label for="kids">Children under 17</label>
+      <div class="inwrap"><input id="kids" type="number" value="0" min="0" max="10"></div></div>
+    <div class="field"><label for="deps">Other dependents</label>
+      <div class="inwrap"><input id="deps" type="number" value="0" min="0" max="10"></div></div>
+  </div></details>
+
+  <details class="group" open><summary>Wage income</summary><div class="in">
+    <div class="field"><label for="salary">Base salary</label>
+      <div class="inwrap"><span>$</span><input id="salary" type="number" value="200000" min="0" step="1000"></div></div>
+    <div class="field"><label for="bonus">Cash bonus</label>
+      <div class="inwrap"><span>$</span><input id="bonus" type="number" value="0" min="0" step="1000"></div></div>
+    <div class="field"><label for="rsu">RSUs vesting this year (market value at vest)</label>
+      <div class="inwrap"><span>$</span><input id="rsu" type="number" value="0" min="0" step="1000"></div>
+      <div class="hint">Taxed as wages on the vest date whether or not you sell the shares.</div></div>
+    <div class="field"><label for="espp">ESPP discount and NSO exercise spread</label>
+      <div class="inwrap"><span>$</span><input id="espp" type="number" value="0" min="0" step="500"></div>
+      <div class="hint">The bargain element on a disqualifying ESPP sale or a non-qualified option exercise is ordinary wage income.</div></div>
+    <div class="field"><label for="spouse">Spouse wages (joint filing only)</label>
+      <div class="inwrap"><span>$</span><input id="spouse" type="number" value="0" min="0" step="1000"></div></div>
+  </div></details>
+
+  <details class="group" open><summary>Pre-tax deductions from pay</summary><div class="in">
+    <div class="field"><label for="k401">Traditional 401(k)</label>
+      <div class="inwrap"><input id="k401" type="number" value="10" min="0" max="100" step="0.5"><span>% of base</span></div>
+      <div class="hint" id="k401hint"></div></div>
+    <div class="field"><label for="hsa">HSA contribution</label>
+      <div class="inwrap"><span>$</span><input id="hsa" type="number" value="0" min="0" step="100"></div>
+      <div class="hint">2026 limit $4,400 self-only, $8,750 family. Reduces federal income tax and FICA through payroll, but California does not recognize HSAs, so it is still taxed by the state.</div></div>
+    <div class="field"><label for="fsa">Health FSA</label>
+      <div class="inwrap"><span>$</span><input id="fsa" type="number" value="0" min="0" step="100"></div>
+      <div class="hint">2026 limit $3,400.</div></div>
+    <div class="field"><label for="dcfsa">Dependent care FSA</label>
+      <div class="inwrap"><span>$</span><input id="dcfsa" type="number" value="0" min="0" step="100"></div>
+      <div class="hint">2026 limit $7,500.</div></div>
+    <div class="field"><label for="prem">Health, dental, vision premiums (annual)</label>
+      <div class="inwrap"><span>$</span><input id="prem" type="number" value="0" min="0" step="100"></div></div>
+    <div class="field"><label for="commuter">Commuter benefits (annual)</label>
+      <div class="inwrap"><span>$</span><input id="commuter" type="number" value="0" min="0" step="100"></div>
+      <div class="hint">2026 limit $340 per month each for transit and parking.</div></div>
+  </div></details>
+
+  <details class="group"><summary>After-tax deductions from pay</summary><div class="in">
+    <div class="hint">These leave your paycheck but do not change any tax.</div>
+    <div class="field"><label for="roth">Roth 401(k)</label>
+      <div class="inwrap"><span>$</span><input id="roth" type="number" value="0" min="0" step="500"></div>
+      <div class="hint">Shares the $24,500 limit with the traditional 401(k).</div></div>
+    <div class="field"><label for="esppc">ESPP contributions</label>
+      <div class="inwrap"><span>$</span><input id="esppc" type="number" value="0" min="0" step="500"></div></div>
+    <div class="field"><label for="otherpost">Other after-tax deductions</label>
+      <div class="inwrap"><span>$</span><input id="otherpost" type="number" value="0" min="0" step="100"></div></div>
+  </div></details>
+
+  <details class="group"><summary>Investment income (outside payroll)</summary><div class="in">
+    <div class="field"><label for="interest">Interest and non-qualified dividends</label>
+      <div class="inwrap"><span>$</span><input id="interest" type="number" value="0" min="0" step="100"></div></div>
+    <div class="field"><label for="qdiv">Qualified dividends</label>
+      <div class="inwrap"><span>$</span><input id="qdiv" type="number" value="0" min="0" step="100"></div></div>
+    <div class="field"><label for="stcg">Short-term capital gains (held one year or less)</label>
+      <div class="inwrap"><span>$</span><input id="stcg" type="number" value="0" min="0" step="500"></div></div>
+    <div class="field"><label for="ltcg">Long-term capital gains (held over a year)</label>
+      <div class="inwrap"><span>$</span><input id="ltcg" type="number" value="0" min="0" step="500"></div>
+      <div class="hint">Includes gains on RSU shares sold more than a year after vesting. California taxes every kind of gain as ordinary income.</div></div>
+  </div></details>
+
+  <details class="group"><summary>Itemized deductions</summary><div class="in">
+    <div class="hint">The planner takes the larger of the standard deduction and these, separately for federal and California.</div>
+    <div class="field"><label for="mortgage">Mortgage interest</label>
+      <div class="inwrap"><span>$</span><input id="mortgage" type="number" value="0" min="0" step="500"></div></div>
+    <div class="field"><label for="proptax">Property tax</label>
+      <div class="inwrap"><span>$</span><input id="proptax" type="number" value="0" min="0" step="500"></div>
+      <div class="hint">Counts toward the federal SALT cap together with your California income tax and SDI.</div></div>
+    <div class="field"><label for="charity">Charitable gifts</label>
+      <div class="inwrap"><span>$</span><input id="charity" type="number" value="0" min="0" step="100"></div></div>
+  </div></details>
+
+  <details class="group" open><summary>Monthly budget</summary><div class="in">
+    <div class="field"><label for="rent">Rent or mortgage payment</label>
+      <div class="inwrap"><span>$</span><input id="rent" type="number" value="3000" min="0" step="50"></div></div>
+    <div class="field"><label for="car">Car payment</label>
+      <div class="inwrap"><span>$</span><input id="car" type="number" value="850" min="0" step="10"></div></div>
+    <div class="field"><label for="term">Loan term</label>
+      <div class="inwrap"><input id="term" type="number" value="48" min="1" max="96" step="1"><span>months</span></div></div>
+    <div class="field"><label for="ins">Insurance, fuel, parking</label>
+      <div class="inwrap"><span>$</span><input id="ins" type="number" value="0" min="0" step="25"></div></div>
+    <div class="field"><label for="life">Living costs</label>
+      <div class="inwrap"><span>$</span><input id="life" type="number" value="1000" min="0" step="50"></div></div>
+  </div></details>
+</section>
+
+<section class="results" aria-label="Results">
+  <div class="tiles">
+    <div class="tile accent"><div class="k">Monthly paycheck take-home</div><div class="v" id="t-net"></div><div class="s" id="t-net-s"></div></div>
+    <div class="tile"><div class="k">Fixed costs</div><div class="v" id="t-fixed"></div><div class="s">rent + car + living</div></div>
+    <div class="tile"><div class="k">Left each month</div><div class="v" id="t-left"></div><div class="s" id="t-left-s"></div></div>
+    <div class="tile"><div class="k">All-in tax rate</div><div class="v" id="t-eff"></div><div class="s">every tax ÷ total income</div></div>
+  </div>
+  <div class="tiles" id="invtiles" hidden>
+    <div class="tile"><div class="k">Investment income</div><div class="v" id="t-inv"></div><div class="s">not in the paycheck</div></div>
+    <div class="tile"><div class="k">Tax it adds</div><div class="v" id="t-invtax"></div><div class="s" id="t-invtax-s"></div></div>
+    <div class="tile"><div class="k">Net investment income</div><div class="v" id="t-invnet"></div><div class="s">per year, after tax</div></div>
+  </div>
+
+  <div class="panel">
+    <h2>Where each month's paycheck goes</h2>
+    <div class="bar" id="bar" role="img" aria-label="Monthly allocation bar"></div>
+    <div class="legend">
+      <span><i class="c1"></i>Rent</span><span><i class="c2"></i>Car</span><span><i class="c3"></i>Living</span><span><i class="c4"></i>Running costs</span><span><i class="c5"></i>Left over</span>
+    </div>
+  </div>
+
+  <div class="panel verdict" id="verdict"></div>
+
+  <div class="panel">
+    <h2>Cash left over across the loan term</h2>
+    <svg id="chart" viewBox="0 0 640 220" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Cumulative surplus over the loan term"></svg>
+    <p class="note" id="chartnote"></p>
+  </div>
+
+  <div class="panel">
+    <h2>Four different "tax rates"</h2>
+    <div class="rates" id="rates"></div>
+    <p class="note" style="margin-top:12px">Which one someone means decides whether the same paycheck is "30% tax" or "40% tax". The marginal rate is measured by actually re-running the whole calculation with $1,000 more wages, so it captures bracket changes, the Social Security cap, phase-outs and credits.</p>
+  </div>
+</section>
+</div>
+
+<section class="panel" aria-label="Calculation walkthrough">
+  <h2>How every number is calculated</h2>
+  <div id="steps"></div>
+</section>
+
+<section class="panel" aria-label="Reference tables">
+  <h2>2026 tables used by this page</h2>
+  <div class="ref" id="ref"></div>
+  <h4>Sources</h4>
+  <div class="src">
+    Federal brackets, standard deductions, capital gains thresholds, child tax credit: IRS Rev. Proc. 2025-32, as tabulated by the <a href="https://taxfoundation.org/data/all/federal/2026-tax-brackets/">Tax Foundation</a>.<br>
+    California 2026 rate schedules, standard deduction and exemption credits: <a href="https://www.ftb.ca.gov/about-ftb/newsroom/tax-news/2026/10.html">FTB Tax News, October 2026</a>. The exemption-credit phase-out thresholds are 2025 figures pending the FTB's December release.<br>
+    Retirement and health account limits: IRS Notice 2025-67 and Rev. Proc. 2025-19, as summarized by <a href="https://www.merceradvisors.com/insights/retirement/2026-retirement-plan-contribution-limits-and-catch-up-rules/">Mercer Advisors</a>.<br>
+    Social Security wage base and payroll rates: Social Security Administration; California SDI rate: EDD.<br>
+    SALT cap, senior deduction, charitable floor and non-itemizer charitable deduction: Public Law 119-21 (the 2025 reconciliation act) as adjusted for 2026.
+  </div>
+</section>
+
+<section class="panel" aria-label="What is not modeled">
+  <h2>What this page does not model</h2>
+  <p class="note" style="font-size:.86rem;max-width:80ch">
+    Alternative minimum tax (matters mainly for ISO exercises and very large itemized deductions). Capital loss netting and the $3,000 loss limit. The itemized-deduction haircut in the 37% bracket. The $6,000 senior deduction. Earned income credit and education credits. Self-employment income. Local taxes (California has no city income tax). Payroll withholding timing: employers withhold bonus and RSU income at flat supplemental rates (22% federal up to $1 million, 10.23% California), so a paystub can show a higher rate than the true annual liability computed here, with the difference returned as a refund or collected as a balance due in April.
+  </p>
+</section>
+
+<section class="panel" aria-label="Glossary">
+  <h2>Terms used on this page</h2>
+  <dl>
+    <dt>Gross pay</dt><dd>Everything your employer pays you in wages before anything is taken out: base, cash bonus, the market value of RSUs on the day they vest, and the bargain element of ESPP shares or option exercises.</dd>
+    <dt>RSU vesting</dt><dd>When restricted stock units vest, the share value that day is added to your W-2 as ordinary wages, whether you sell or hold. Your employer usually sells or withholds some shares to cover withholding. If you later sell, only the change in price since vesting is a capital gain or loss.</dd>
+    <dt>Pre-tax deduction</dt><dd>Money taken from pay before income tax is computed. Traditional 401(k) lowers income tax but not Social Security, Medicare or SDI. Cafeteria-plan items (health premiums, HSA, FSAs, commuter) lower every tax. California does not recognize HSA deductions.</dd>
+    <dt>After-tax deduction</dt><dd>Money taken from pay after tax: Roth 401(k), ESPP purchases, after-tax 401(k). They reduce the deposit but not the tax.</dd>
+    <dt>Adjusted gross income (AGI)</dt><dd>Taxable wages plus investment income and other income, before the standard or itemized deduction. Phase-outs for credits and the SALT cap are measured against it.</dd>
+    <dt>Standard deduction</dt><dd>A fixed amount subtracted from AGI before the brackets apply. Federal: $16,100 single, $32,200 joint, $24,150 head of household. California: $5,900 single, $11,800 joint or head of household. It is a deduction, not a tax.</dd>
+    <dt>Itemized deductions</dt><dd>Mortgage interest, state and local taxes (federal cap $40,400 in 2026, shrinking above $505,000 AGI), and charitable gifts (above a 0.5% of AGI floor). Used instead of the standard deduction when larger. California allows property tax and mortgage interest but never state income tax.</dd>
+    <dt>Taxable income</dt><dd>AGI minus the deduction. The number the bracket rates are applied to.</dd>
+    <dt>Tax bracket / marginal rate</dt><dd>Only dollars inside a bracket pay its rate. Your marginal rate is the combined federal, state and payroll rate on the next dollar, which is what a raise, bonus or RSU vest is actually taxed at.</dd>
+    <dt>Qualified dividends and long-term gains</dt><dd>Taxed federally at 0%, 15% or 20% depending on total taxable income, stacked on top of ordinary income. California taxes them as ordinary income at up to 12.3%.</dd>
+    <dt>Net investment income tax (NIIT)</dt><dd>An extra 3.8% federal tax on investment income once AGI exceeds $200,000 single or $250,000 joint. The thresholds are not indexed for inflation.</dd>
+    <dt>Child tax credit</dt><dd>$2,200 per child under 17 and $500 per other dependent, reduced by $50 for every $1,000 of AGI above $200,000 single or $400,000 joint. A credit cuts the tax itself; a deduction cuts the income the tax is computed on.</dd>
+    <dt>FICA</dt><dd>Social Security (6.2% on wages up to $184,500 per worker) and Medicare (1.45% on all wages, plus 0.9% Additional Medicare Tax above $200,000 single or $250,000 joint).</dd>
+    <dt>SDI</dt><dd>California State Disability Insurance, 1.3% of all wages with no cap. It is deductible as a state tax on a federal itemized return.</dd>
+    <dt>Exemption credit</dt><dd>California subtracts $158 per filer and $491 per dependent directly from the tax. It phases out slowly for high incomes.</dd>
+    <dt>Effective rate</dt><dd>Total tax divided by income. Always below the marginal rate because the lower brackets took their smaller bite first. Dividing by taxable income instead of gross gives a larger number for the same tax.</dd>
+    <dt>20/4/10 rule</dt><dd>Car-buying guideline: 20% down, a loan no longer than 4 years, all car costs under 10% of gross income.</dd>
+  </dl>
+</section>
+</div>
+
+<script>
+(function(){
+  // ---------- 2026 tables ----------
+  const FED = {
+    std:{single:16100, mfj:32200, hoh:24150, mfs:16100},
+    br:{
+      single:[[12400,.10],[50400,.12],[105700,.22],[201775,.24],[256225,.32],[640600,.35],[Infinity,.37]],
+      mfj:[[24800,.10],[100800,.12],[211400,.22],[403550,.24],[512450,.32],[768700,.35],[Infinity,.37]],
+      hoh:[[17700,.10],[67450,.12],[105700,.22],[201750,.24],[256200,.32],[640600,.35],[Infinity,.37]],
+      mfs:[[12400,.10],[50400,.12],[105700,.22],[201775,.24],[256225,.32],[384350,.35],[Infinity,.37]]
+    },
+    cg:{single:[49450,545500], mfj:[98900,613700], hoh:[66200,579600], mfs:[49450,306850]},
+    niit:{single:200000, mfj:250000, hoh:200000, mfs:125000},
+    addlMed:{single:200000, mfj:250000, hoh:200000, mfs:125000},
+    ctc:{perChild:2200, perOther:500, phase:{single:200000, mfj:400000, hoh:200000, mfs:200000}},
+    salt:{cap:{single:40400, mfj:40400, hoh:40400, mfs:20200}, phaseStart:{single:505000, mfj:505000, hoh:505000, mfs:252500}, floor:{single:10000, mfj:10000, hoh:10000, mfs:5000}},
+    charityFloor:.005, nonItemizerCharity:{single:1000, mfj:2000, hoh:1000, mfs:1000}
+  };
+  const CA = {
+    std:{single:5900, mfj:11800, hoh:11800, mfs:5900},
+    br:{
+      single:[[11456,.01],[27157,.02],[42861,.04],[59498,.06],[75197,.08],[384109,.093],[460927,.103],[768213,.113],[Infinity,.123]],
+      mfj:[[22912,.01],[54314,.02],[85722,.04],[118996,.06],[150394,.08],[768218,.093],[921854,.103],[1536426,.113],[Infinity,.123]],
+      hoh:[[22921,.01],[54314,.02],[70000,.04],[86632,.06],[102325,.08],[522167,.093],[626597,.103],[1044329,.113],[Infinity,.123]],
+      mfs:[[11456,.01],[27157,.02],[42861,.04],[59498,.06],[75197,.08],[384109,.093],[460927,.103],[768213,.113],[Infinity,.123]]
+    },
+    exempt:{single:158, mfj:316, hoh:158, mfs:158}, depCredit:491,
+    exemptPhase:{single:244857, mfj:489719, hoh:367291, mfs:244857},
+    mhst:1000000, sdi:.013
+  };
+  const FICA = {ssRate:.062, ssCap:184500, medRate:.0145, addlMed:.009};
+  const LIM = {k401:24500, catch50:8000, catch60:11250, hsaSelf:4400, hsaFam:8750, fsa:3400, dcfsa:7500, commuterMo:340};
+
+  // ---------- helpers ----------
+  const $ = id => document.getElementById(id);
+  const money = v => (v<0?'−':'') + '$' + Math.abs(Math.round(v)).toLocaleString('en-US');
+  const pct = v => (v*100).toFixed(1) + '%';
+  const pr = r => { const p=r*100; return (Math.abs(p-Math.round(p))<1e-9?p.toFixed(0):p.toFixed(1)) + '%'; };
+  const statusName = {single:'Single', mfj:'Married filing jointly', hoh:'Head of household', mfs:'Married filing separately'};
+  const numIds = ['age','kids','deps','salary','bonus','rsu','espp','spouse','k401','hsa','fsa','dcfsa','prem','commuter','roth','esppc','otherpost','interest','qdiv','stcg','ltcg','mortgage','proptax','charity','rent','car','term','ins','life'];
+  function read(){ const o={status:$('status').value}; numIds.forEach(id=>o[id]=parseFloat($(id).value)||0); return o; }
+
+  function bracketRows(taxable, br){
+    const rows=[]; let prev=0;
+    for(const [top,rate] of br){ if(taxable<=prev) break; const amt=Math.min(taxable,top)-prev; rows.push({lo:prev,hi:Math.min(taxable,top),rate,amt,tax:amt*rate}); prev=top; }
+    return rows;
+  }
+  const sum = (rows,k) => rows.reduce((a,r)=>a+r[k],0);
+
+  function k401Limit(age){ return LIM.k401 + (age>=60&&age<=63 ? LIM.catch60 : age>=50 ? LIM.catch50 : 0); }
+
+  // ---------- the engine ----------
+  // inv=false strips investment income so the paycheck and the investment portion can be separated.
+  function compute(i, opts={}){
+    const st=i.status, inv = opts.inv!==false;
+    const extraWage = opts.extraWage||0;
+    const myWages = i.salary + i.bonus + i.rsu + i.espp + extraWage;
+    const spouse = st==='mfj' ? i.spouse : 0;
+    const gross = myWages + spouse;
+
+    const k401lim = k401Limit(i.age);
+    const k401 = Math.min(i.salary*i.k401/100, Math.max(0,k401lim - i.roth));
+    const caf = i.hsa + i.fsa + i.dcfsa + i.prem + i.commuter;          // cafeteria-plan items: reduce income tax and FICA
+    const fedPre = k401 + caf;
+    const caPre = k401 + caf - i.hsa;                                    // California does not allow the HSA deduction
+    const post = i.roth + i.esppc + i.otherpost;
+
+    const interest = inv?i.interest:0, qdiv = inv?i.qdiv:0, stcg = inv?i.stcg:0, ltcg = inv?i.ltcg:0;
+    const invIncome = interest+qdiv+stcg+ltcg;
+    const pref = qdiv + ltcg;                                            // preferential-rate income
+
+    // --- Federal ---
+    const fedWages = Math.max(0, gross - fedPre);
+    const agi = fedWages + invIncome;
+    // SALT: CA income tax (computed below, independent of federal) + SDI + property tax, capped with phase-down
+    const caResult = computeCA();
+    const saltPaid = caResult.tax + caResult.sdi + i.proptax;
+    let saltCap = FED.salt.cap[st];
+    if(agi > FED.salt.phaseStart[st]) saltCap = Math.max(FED.salt.floor[st], saltCap - 0.30*(agi-FED.salt.phaseStart[st]));
+    const saltAllowed = Math.min(saltPaid, saltCap);
+    const charityAllowed = Math.max(0, i.charity - FED.charityFloor*agi);
+    const itemized = i.mortgage + saltAllowed + charityAllowed;
+    const standard = FED.std[st] + Math.min(i.charity, FED.nonItemizerCharity[st]);
+    const useItemized = itemized > standard;
+    const deduction = useItemized ? itemized : standard;
+    const taxable = Math.max(0, agi - deduction);
+    const prefTaxable = Math.min(pref, taxable);
+    const ordTaxable = taxable - prefTaxable;
+    const fedRows = bracketRows(ordTaxable, FED.br[st]);
+    const ordTax = sum(fedRows,'tax');
+    // preferential income stacked on top of ordinary income
+    const [cg0,cg20] = FED.cg[st];
+    const p15 = Math.max(0, Math.min(taxable, cg20) - Math.max(ordTaxable, cg0));
+    const p20 = Math.max(0, taxable - Math.max(ordTaxable, cg20));
+    const p0 = prefTaxable - p15 - p20;
+    const prefTax = p15*.15 + p20*.20;
+    const niit = inv ? .038 * Math.min(invIncome, Math.max(0, agi - FED.niit[st])) : 0;
+    let ctc = i.kids*FED.ctc.perChild + i.deps*FED.ctc.perOther;
+    const ctcReduce = Math.ceil(Math.max(0, agi - FED.ctc.phase[st])/1000)*50;
+    ctc = Math.max(0, ctc - ctcReduce);
+    const fedBeforeCredit = ordTax + prefTax;
+    const ctcUsed = Math.min(ctc, fedBeforeCredit);
+    const fed = fedBeforeCredit - ctcUsed + niit;
+    const mFed = fedRows.length ? fedRows[fedRows.length-1].rate : FED.br[st][0][1];
+
+    // --- California ---
+    function computeCA(){
+      const wages = Math.max(0, gross - caPre);
+      const cagi = wages + invIncome;                                  // all investment income is ordinary in CA
+      const caItem = i.mortgage + i.proptax + i.charity;
+      const caStd = CA.std[st];
+      const caUseItem = caItem > caStd;
+      const caDed = caUseItem ? caItem : caStd;
+      const caTaxable = Math.max(0, cagi - caDed);
+      const rows = bracketRows(caTaxable, CA.br[st]);
+      const base = sum(rows,'tax') + (caTaxable>CA.mhst ? (caTaxable-CA.mhst)*.01 : 0);
+      let credit = CA.exempt[st] + (i.kids+i.deps)*CA.depCredit;
+      const over = Math.max(0, cagi - CA.exemptPhase[st]);
+      const creditReduce = Math.ceil(over/2500) * 6 * (1 + i.kids + i.deps) * (st==='mfj'?2:1);
+      credit = Math.max(0, credit - creditReduce);
+      const creditUsed = Math.min(credit, base);
+      const tax = base - creditUsed;
+      const sdi = CA.sdi * (Math.max(0, myWages - caf) + Math.max(0, spouse));
+      const mCa = rows.length ? rows[rows.length-1].rate : CA.br[st][0][1];
+      return {wages, cagi, caItem, caStd, caUseItem, caDed, caTaxable, rows, base, credit, creditUsed, tax, sdi, mCa};
+    }
+
+    // --- Payroll ---
+    const myFica = Math.max(0, myWages - caf), spFica = spouse;
+    const ss = Math.min(myFica, FICA.ssCap)*FICA.ssRate + Math.min(spFica, FICA.ssCap)*FICA.ssRate;
+    const med = (myFica+spFica)*FICA.medRate;
+    const addl = Math.max(0, myFica+spFica - FED.addlMed[st])*FICA.addlMed;
+    const payroll = ss + med + addl + caResult.sdi;
+
+    const incomeTax = fed + caResult.tax;
+    const totalTax = incomeTax + payroll;
+    const totalIncome = gross + invIncome;
+    const netAll = totalIncome - fedPre - post - totalTax;
+
+    return {gross, myWages, spouse, k401, k401lim, caf, fedPre, caPre, post, invIncome, pref, fedWages, agi, saltPaid, saltCap, saltAllowed, charityAllowed, itemized, standard, useItemized, deduction, taxable, prefTaxable, ordTaxable, fedRows, ordTax, p0, p15, p20, prefTax, niit, ctc, ctcReduce, ctcUsed, fedBeforeCredit, fed, mFed,
+            ca: caResult, myFica, spFica, ss, med, addl, payroll, incomeTax, totalTax, totalIncome, netAll};
+  }
+
+  // ---------- render ----------
+  function render(){
+    const i = read();
+    const st = i.status;
+    $('spouse').disabled = st!=='mfj';
+    const r = compute(i);
+    const rw = compute(i,{inv:false});                 // wages only
+    const rm = compute(i,{extraWage:1000});            // marginal probe
+    const paycheckNet = r.gross - r.fedPre - r.post - rw.fed - rw.ca.tax - r.payroll;
+    const invTax = (r.fed + r.ca.tax) - (rw.fed + rw.ca.tax);
+    const invNet = r.invIncome - invTax;
+    const mNet = paycheckNet/12;
+    const fixed = i.rent + i.car + i.life + i.ins;
+    const left = mNet - fixed;
+    const marginal = (rm.totalTax - r.totalTax)/1000;
+
+    $('k401hint').textContent = `${money(r.k401)} per year. Your limit at age ${i.age} is ${money(r.k401lim)} across traditional and Roth` + (i.salary*i.k401/100 > r.k401 ? ', so the contribution is capped.' : '.');
+
+    $('t-net').textContent = money(mNet);
+    $('t-net-s').textContent = `${money(paycheckNet)} per year after deductions and tax`;
+    $('t-fixed').textContent = money(fixed);
+    $('t-left').textContent = money(left);
+    $('t-left-s').textContent = mNet>0 ? (left>=0 ? `${pct(left/mNet)} of take-home` : 'spending exceeds income') : '';
+    $('t-eff').textContent = pct(r.totalIncome ? r.totalTax/r.totalIncome : 0);
+    $('invtiles').hidden = r.invIncome<=0;
+    if(r.invIncome>0){ $('t-inv').textContent=money(r.invIncome); $('t-invtax').textContent=money(invTax); $('t-invtax-s').textContent=`${pct(invTax/r.invIncome)} of it, federal + California`; $('t-invnet').textContent=money(invNet); }
+
+    const parts = [['c1',i.rent],['c2',i.car],['c3',i.life],['c4',i.ins],['c5',Math.max(0,left)]];
+    const total = parts.reduce((a,p)=>a+p[1],0) || 1;
+    $('bar').innerHTML = parts.map(([c,v])=>`<div class="${c}" style="flex:${v/total}" title="${money(v)}"></div>`).join('');
+
+    const carShareNet = mNet? i.car/mNet : 0, carAll = i.car+i.ins, carShareGross = r.gross? carAll*12/r.gross : 0, fixedShare = mNet? fixed/mNet : 0, financed = i.car*i.term;
+    const checks = [
+      {cls: carShareNet<=0.10?'ok':carShareNet<=0.15?'warn':'bad', pill: pct(carShareNet), t:'Car payment as a share of take-home', d:`${money(i.car)} ÷ ${money(mNet)}. Under 10% is comfortable, 10 to 15% is manageable, above 15% crowds out saving.`},
+      {cls: carShareGross<=0.10?'ok':carShareGross<=0.14?'warn':'bad', pill: pct(carShareGross), t:'All car costs as a share of gross pay (the "10" in 20/4/10)', d:`${money(carAll*12)} per year ÷ ${money(r.gross)} gross wages. ` + (i.ins>0?'Payment plus insurance, fuel and parking.':'Payment only. Add running costs in the budget section for the real figure.')},
+      {cls: i.term<=48?'ok':i.term<=60?'warn':'bad', pill: i.term+' mo', t:'Loan term (the "4" in 20/4/10)', d: i.term<=48?'Four years or less keeps you ahead of depreciation.': i.term<=60?'Five years is common but you will owe more than the car is worth for a stretch.':'Long terms on a depreciating asset are where buyers end up underwater.'},
+      {cls: fixedShare<=0.55?'ok':fixedShare<=0.70?'warn':'bad', pill: pct(fixedShare), t:'Fixed costs as a share of take-home', d:`${money(fixed)} ÷ ${money(mNet)}. Leaving 30% or more is what lets you save and absorb surprises.`},
+      {cls: left>=mNet*0.20?'ok':left>=0?'warn':'bad', pill: money(left*12)+'/yr', t:'Cash left after everything', d:`${money(financed)} goes to the car over ${i.term} months. Separately, ${money(r.k401+i.roth)} a year is already going into retirement accounts.`}
+    ];
+    $('verdict').innerHTML = '<h2 style="margin-bottom:4px">Affordability checks</h2>' + checks.map(c=>`<div class="check ${c.cls}"><span class="pill">${c.pill}</span><div><b>${c.t}</b><div class="d">${c.d}</div></div></div>`).join('');
+
+    renderRates(i, r, rw, paycheckNet, marginal, rm);
+    renderSteps(i, r, rw, paycheckNet, invTax, mNet);
+    drawChart(i, mNet, fixed, left);
+  }
+
+  function renderRates(i, r, rw, paycheckNet, marginal, rm){
+    const g = r.totalIncome;
+    const dFed = (rm.fed - r.fed)/1000, dCa = (rm.ca.tax - r.ca.tax)/1000, dPay = (rm.payroll - r.payroll)/1000;
+    const cards = [
+      {k:'Income-tax rate', v:pct(r.incomeTax/g), d:`Federal + California income tax ÷ total income. ${money(r.incomeTax)} ÷ ${money(g)}. Tax software often divides by taxable income instead, which gives ${pct(r.taxable? r.incomeTax/r.taxable : 0)}.`},
+      {k:'All-in tax rate', v:pct(r.totalTax/g), d:`Adds Social Security, Medicare and SDI. ${money(r.totalTax)} ÷ ${money(g)}. This is the tile at the top.`, hi:true},
+      {k:'Paycheck-reduction rate', v:pct(r.gross? (r.gross-paycheckNet)/r.gross : 0), d:`Everything that leaves the paycheck, including ${money(r.fedPre+r.post)} of retirement and benefit deductions that are not tax, ÷ gross wages ${money(r.gross)}. This is what the gap between salary and deposit feels like.`},
+      {k:'Marginal rate on the next $1,000 of wages', v:pct(marginal), d:`${pr(dFed)} federal + ${pr(dCa)} California + ${pr(dPay)} payroll, measured by re-running the calculation. A bonus, RSU vest or raise is taxed at this rate.`}
+    ];
+    $('rates').innerHTML = cards.map(c=>`<div class="rate${c.hi?' hi':''}"><div class="k">${c.k}</div><div class="v">${c.v}</div><div class="d">${c.d}</div></div>`).join('');
+  }
+
+  function bracketTable(rows, label){
+    let h = `<div class="tscroll"><table><thead><tr><th>${label} slice</th><th class="n">Rate</th><th class="n">Dollars in slice</th><th class="n">Tax on slice</th></tr></thead><tbody>`;
+    rows.forEach(x=>{ h += `<tr><td class="f">${money(x.lo)} to ${money(x.hi)}</td><td class="n">${pr(x.rate)}</td><td class="n">${money(x.amt)}</td><td class="n">${money(x.tax)}</td></tr>`; });
+    h += `<tr class="total"><td>Total</td><td></td><td class="n">${money(sum(rows,'amt'))}</td><td class="n">${money(sum(rows,'tax'))}</td></tr></tbody></table></div>`;
+    return h;
+  }
+
+  function renderSteps(i, r, rw, paycheckNet, invTax, mNet){
+    const st=i.status, c=r.ca, s=[];
+    const spouseLine = st==='mfj' ? ` + ${money(r.spouse)} spouse wages` : '';
+    s.push({t:'Gross wages', body:`
+      <p>All W-2 wages are added together. RSUs count at their market value on the vest date even if you keep the shares; the employer reports them on your W-2 and withholds on them.</p>
+      <div class="eq">${money(i.salary)} base + ${money(i.bonus)} bonus + ${money(i.rsu)} RSU vests + ${money(i.espp)} ESPP/NSO${spouseLine} = <b>${money(r.gross)} gross wages</b></div>
+      ${r.invIncome>0?`<div class="eq">Plus ${money(r.invIncome)} investment income outside payroll, handled in step 5.</div>`:''}`});
+    s.push({t:'Pre-tax deductions', body:`
+      <p>The traditional 401(k) lowers income tax only. Cafeteria-plan items (premiums, HSA, FSAs, commuter) lower income tax <b>and</b> payroll taxes. California does not allow the HSA deduction, so state taxable wages are higher by that amount.</p>
+      <div class="eq">401(k): ${i.k401}% × ${money(i.salary)} = ${money(i.salary*i.k401/100)}${i.salary*i.k401/100>r.k401?' → capped at '+money(r.k401):''}</div>
+      <div class="eq">Cafeteria items: ${money(i.prem)} premiums + ${money(i.hsa)} HSA + ${money(i.fsa)} FSA + ${money(i.dcfsa)} dep. care + ${money(i.commuter)} commuter = ${money(r.caf)}</div>
+      <div class="eq">${money(r.gross)} − ${money(r.k401)} − ${money(r.caf)} = <b>${money(r.fedWages)} federal taxable wages</b></div>
+      <div class="eq">${money(r.gross)} − ${money(r.caPre)} (HSA added back) = <b>${money(c.wages)} California taxable wages</b></div>
+      <div class="eq">${money(r.gross)} − ${money(r.caf)} = <b>${money(r.myFica+r.spFica)} wages subject to Social Security, Medicare and SDI</b></div>`});
+    s.push({t:'Federal deduction: standard or itemized', body:`
+      <p>Adjusted gross income is taxable wages plus investment income. From it comes the larger of the standard deduction and your itemized total. State and local taxes (your California income tax, SDI and property tax) count toward itemizing but are capped.</p>
+      <div class="eq">AGI = ${money(r.fedWages)} wages + ${money(r.invIncome)} investment income = <b>${money(r.agi)}</b></div>
+      <div class="eq">Standard: $${FED.std[st].toLocaleString()}${Math.min(i.charity,FED.nonItemizerCharity[st])>0?' + '+money(Math.min(i.charity,FED.nonItemizerCharity[st]))+' non-itemizer charitable deduction':''} = ${money(r.standard)}</div>
+      <div class="eq">Itemized: ${money(i.mortgage)} mortgage interest + ${money(r.saltAllowed)} SALT (paid ${money(r.saltPaid)}, cap ${money(r.saltCap)}) + ${money(r.charityAllowed)} charity (after 0.5% of AGI floor) = ${money(r.itemized)}</div>
+      <div class="eq">Using <b>${r.useItemized?'itemized':'standard'}</b>: ${money(r.agi)} − ${money(r.deduction)} = <b>${money(r.taxable)} federal taxable income</b></div>`});
+    s.push({t:'Federal income tax on ordinary income', body:`
+      <p>Ordinary income (wages, interest, short-term gains) is run through the ${statusName[st]} brackets slice by slice. Qualified dividends and long-term gains are set aside for the next step.</p>
+      <div class="eq">${money(r.taxable)} − ${money(r.prefTaxable)} preferential income = <b>${money(r.ordTaxable)} ordinary taxable income</b></div>
+      ${bracketTable(r.fedRows,'Federal')}`});
+    s.push({t:'Preferential rates, NIIT and credits', body:`
+      <p>Qualified dividends and long-term gains sit on top of ordinary income and are taxed at 0%, 15% or 20% depending on where the stack lands. The 3.8% net investment income tax applies to investment income above the AGI threshold. The child tax credit is subtracted from the tax, reduced by $50 per $1,000 of AGI above the phase-out.</p>
+      <div class="eq">Preferential: ${money(r.p0)} at 0% + ${money(r.p15)} at 15% + ${money(r.p20)} at 20% = <b>${money(r.prefTax)}</b></div>
+      <div class="eq">NIIT: 3.8% × ${money(r.invIncome? Math.min(r.invIncome, Math.max(0, r.agi-FED.niit[st])) : 0)} = <b>${money(r.niit)}</b></div>
+      <div class="eq">Child/dependent credit: ${money(i.kids*FED.ctc.perChild + i.deps*FED.ctc.perOther)} − ${money(Math.min(r.ctcReduce, i.kids*FED.ctc.perChild + i.deps*FED.ctc.perOther))} phase-out = <b>${money(r.ctcUsed)}</b> used</div>
+      <div class="eq">${money(r.ordTax)} + ${money(r.prefTax)} − ${money(r.ctcUsed)} + ${money(r.niit)} = <b>${money(r.fed)} federal income tax</b> (${money(r.fed/12)} per month)</div>`});
+    s.push({t:'California income tax', body:`
+      <p>California starts from its own taxable wages (HSA added back), treats every kind of investment income as ordinary, uses its own standard deduction (${money(c.caStd)}) or itemized total (no state-tax deduction, no SALT cap), and finally subtracts exemption credits from the tax.</p>
+      <div class="eq">CA AGI = ${money(c.wages)} + ${money(r.invIncome)} = ${money(c.cagi)}; deduction ${c.caUseItem?'itemized':'standard'} ${money(c.caDed)} → <b>${money(c.caTaxable)} California taxable income</b></div>
+      ${bracketTable(c.rows,'California')}
+      <div class="eq">${money(c.base)} − ${money(c.creditUsed)} exemption credits (${money(CA.exempt[st])} filer + ${money((i.kids+i.deps)*CA.depCredit)} dependents${c.credit<CA.exempt[st]+(i.kids+i.deps)*CA.depCredit?', reduced by the high-income phase-out':''}) = <b>${money(c.tax)} California income tax</b> (${money(c.tax/12)} per month)</div>`});
+    s.push({t:'Payroll taxes', body:`
+      <p>Flat percentages of wages with no deduction. Social Security stops at $184,500 per worker. The 0.9% Additional Medicare Tax starts at $${FED.addlMed[st].toLocaleString()} of combined wages for ${statusName[st].toLowerCase()} filers. SDI is uncapped.</p>
+      <div class="eq">Social Security: 6.2% × ${money(Math.min(r.myFica,FICA.ssCap))}${r.myFica>FICA.ssCap?' (capped)':''}${st==='mfj'&&r.spFica?' + 6.2% × '+money(Math.min(r.spFica,FICA.ssCap)):''} = <b>${money(r.ss)}</b></div>
+      <div class="eq">Medicare: 1.45% × ${money(r.myFica+r.spFica)} = <b>${money(r.med)}</b></div>
+      <div class="eq">Additional Medicare: 0.9% × ${money(Math.max(0,r.myFica+r.spFica-FED.addlMed[st]))} = <b>${money(r.addl)}</b></div>
+      <div class="eq">California SDI: 1.3% × ${money(r.myFica+r.spFica)} = <b>${money(c.sdi)}</b></div>
+      <div class="eq">Payroll taxes = <b>${money(r.payroll)}</b> per year</div>`});
+    s.push({t:'Take-home', body:`
+      <p>The paycheck figure uses the income tax computed on wages alone${r.invIncome>0?`; the extra ${money(invTax)} of tax caused by investment income is charged against that income instead, since it never passes through payroll`:''}.</p>
+      <div class="tscroll"><table><thead><tr><th>Line</th><th class="n">Annual</th><th class="n">Monthly</th><th class="n">% of gross wages</th></tr></thead><tbody>
+        <tr><td>Gross wages</td><td class="n">${money(r.gross)}</td><td class="n">${money(r.gross/12)}</td><td class="n">100%</td></tr>
+        <tr class="dim"><td>Pre-tax deductions (yours, not tax)</td><td class="n">${money(-r.fedPre)}</td><td class="n">${money(-r.fedPre/12)}</td><td class="n">${pct(r.fedPre/r.gross)}</td></tr>
+        <tr class="dim"><td>After-tax deductions (yours, not tax)</td><td class="n">${money(-r.post)}</td><td class="n">${money(-r.post/12)}</td><td class="n">${pct(r.post/r.gross)}</td></tr>
+        <tr><td>Federal income tax on wages</td><td class="n">${money(-rw.fed)}</td><td class="n">${money(-rw.fed/12)}</td><td class="n">${pct(rw.fed/r.gross)}</td></tr>
+        <tr><td>California income tax on wages</td><td class="n">${money(-rw.ca.tax)}</td><td class="n">${money(-rw.ca.tax/12)}</td><td class="n">${pct(rw.ca.tax/r.gross)}</td></tr>
+        <tr><td>Social Security</td><td class="n">${money(-r.ss)}</td><td class="n">${money(-r.ss/12)}</td><td class="n">${pct(r.ss/r.gross)}</td></tr>
+        <tr><td>Medicare incl. additional</td><td class="n">${money(-(r.med+r.addl))}</td><td class="n">${money(-(r.med+r.addl)/12)}</td><td class="n">${pct((r.med+r.addl)/r.gross)}</td></tr>
+        <tr><td>California SDI</td><td class="n">${money(-c.sdi)}</td><td class="n">${money(-c.sdi/12)}</td><td class="n">${pct(c.sdi/r.gross)}</td></tr>
+        <tr class="total"><td>Paycheck take-home</td><td class="n">${money(paycheckNet)}</td><td class="n">${money(mNet)}</td><td class="n">${pct(paycheckNet/r.gross)}</td></tr>
+      </tbody></table></div>
+      ${r.invIncome>0?`<div class="eq">Investment income ${money(r.invIncome)} − ${money(invTax)} tax it adds = <b>${money(r.invIncome-invTax)} net</b>; all-in cash after tax and deductions = <b>${money(r.netAll)}</b></div>`:''}`});
+    $('steps').innerHTML = s.map((x,n)=>`<div class="step"><div class="num">${n+1}</div><div class="body"><h3>${x.t}</h3>${x.body}</div></div>`).join('');
+  }
+
+  function renderRef(){
+    const st = $('status').value;
+    const fmt = br => `<div class="tscroll"><table><thead><tr><th>Taxable income over</th><th>Up to</th><th class="n">Rate</th></tr></thead><tbody>` + br.map((b,k)=>`<tr><td class="n" style="text-align:left">${money(k?br[k-1][0]:0)}</td><td class="n" style="text-align:left">${b[0]===Infinity?'and over':money(b[0])}</td><td class="n">${pr(b[1])}</td></tr>`).join('') + '</tbody></table></div>';
+    const cg = FED.cg[st];
+    $('ref').innerHTML = `
+      <div><h3>Federal brackets, ${statusName[st]}</h3>${fmt(FED.br[st])}<p class="note">Standard deduction ${money(FED.std[st])}. Long-term gains and qualified dividends: 0% up to ${money(cg[0])}, 15% up to ${money(cg[1])}, 20% above.</p></div>
+      <div><h3>California brackets, ${statusName[st]}</h3>${fmt(CA.br[st])}<p class="note">Standard deduction ${money(CA.std[st])}. Exemption credit ${money(CA.exempt[st])} per return, ${money(CA.depCredit)} per dependent. 1% mental health surtax above $1,000,000.</p></div>
+      <div><h3>Payroll and limits</h3><div class="tscroll"><table><tbody>
+        <tr><td>Social Security</td><td class="n">6.2% to $184,500</td></tr>
+        <tr><td>Medicare</td><td class="n">1.45% all wages</td></tr>
+        <tr><td>Additional Medicare</td><td class="n">0.9% over ${money(FED.addlMed[st])}</td></tr>
+        <tr><td>California SDI</td><td class="n">1.3%, no cap</td></tr>
+        <tr><td>NIIT</td><td class="n">3.8% over ${money(FED.niit[st])} AGI</td></tr>
+        <tr><td>401(k) employee limit</td><td class="n">$24,500</td></tr>
+        <tr><td>401(k) catch-up 50+ / 60 to 63</td><td class="n">$8,000 / $11,250</td></tr>
+        <tr><td>HSA self / family</td><td class="n">$4,400 / $8,750</td></tr>
+        <tr><td>Health FSA / dependent care</td><td class="n">$3,400 / $7,500</td></tr>
+        <tr><td>Commuter, per month</td><td class="n">$340</td></tr>
+        <tr><td>SALT cap</td><td class="n">${money(FED.salt.cap[st])}, phases down above ${money(FED.salt.phaseStart[st])} AGI to ${money(FED.salt.floor[st])}</td></tr>
+        <tr><td>Child tax credit</td><td class="n">$2,200 per child, $500 other dependent, phase-out from ${money(FED.ctc.phase[st])}</td></tr>
+      </tbody></table></div></div>`;
+  }
+
+  function drawChart(i, mNet, fixed, left){
+    const W=640,H=220,pl=56,pr_=16,pt=16,pb=30;
+    const n=Math.max(1,i.term);
+    const withCar=[], noCar=[];
+    for(let m=0;m<=n;m++){ withCar.push(left*m); noCar.push((left+i.car+i.ins)*m); }
+    const ymax=Math.max(1, ...noCar, ...withCar), ymin=Math.min(0, ...withCar);
+    const x=m=>pl+(W-pl-pr_)*m/n, y=v=>pt+(H-pt-pb)*(1-(v-ymin)/(ymax-ymin));
+    const path=a=>a.map((v,m)=>(m?'L':'M')+x(m).toFixed(1)+' '+y(v).toFixed(1)).join(' ');
+    let s='';
+    for(let t=0;t<=4;t++){ const v=ymin+(ymax-ymin)*t/4; s+=`<line x1="${pl}" x2="${W-pr_}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${pl-6}" y="${y(v)+4}" text-anchor="end">${Math.abs(v)>=1000?Math.round(v/1000)+'k':Math.round(v)}</text>`; }
+    [0,Math.round(n/2),n].forEach(m=>{ s+=`<text x="${x(m)}" y="${H-8}" text-anchor="middle">mo ${m}</text>`; });
+    if(ymin<0) s+=`<line x1="${pl}" x2="${W-pr_}" y1="${y(0)}" y2="${y(0)}" stroke="var(--muted)" stroke-dasharray="3 3"/>`;
+    s+=`<path d="${path(noCar)}" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="5 4"/>`;
+    s+=`<path d="${path(withCar)}" fill="none" stroke="var(--accent)" stroke-width="2.5"/>`;
+    s+=`<circle cx="${x(n)}" cy="${y(withCar[n])}" r="4" fill="var(--accent)"/>`;
+    s+=`<text x="${x(n)-6}" y="${y(withCar[n])-8}" text-anchor="end" style="fill:var(--fg)">${money(withCar[n])}</text>`;
+    s+=`<text x="${x(n)-6}" y="${y(noCar[n])-8}" text-anchor="end">${money(noCar[n])} without car</text>`;
+    $('chart').innerHTML=s;
+    $('chartnote').textContent = `Solid line: cumulative cash left over with the car (${money(left)} × months). Dashed: the same without it. The gap at month ${n} is ${money(noCar[n]-withCar[n])}, the full cost of the loan payments${i.ins?' and running costs':''}. Investment income, interest on savings and raises are not included.`;
+  }
+
+  numIds.forEach(id=>$(id).addEventListener('input', render));
+  $('status').addEventListener('change', ()=>{ renderRef(); render(); });
+  renderRef(); render();
+})();
+</script>
+
+</body></html>
